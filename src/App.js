@@ -1,55 +1,45 @@
-import logo from "./logo.svg";
+import React, { useEffect, useState } from "react";
+import BBTimeline from "./BBTimeline";
 import "./App.css";
-import { useEffect, useRef, useState } from "react";
-import {
-  select,
-  line,
-  axisBottom,
-  scaleBand,
-  scaleLinear,
-  max,
-  axisRight,
-  curveCardinal,
-} from "d3";
 
 function App() {
-  const [data, setData] = useState([25, 100, 45, 60, 20, 30, 40]);
-  const svgRef = useRef(null);
-  useEffect(() => {
-    const svg = select(svgRef.current).attr("width", 300).attr("height", 150);
-    const width = svg.attr("width");
-    const height = svg.attr("height");
-    //scale
-    const xAxisG = svg.append("g").attr("transform", `translate(0,${height})`);
-    const yAxisG = svg.append("g").attr("transform", `translate(${width},0)`);
-    const xScale = scaleLinear().domain([0, 6]).range([0, width]);
-    const yScale = scaleLinear().domain([0, height]).range([height, 0]);
-    const xAxis = axisBottom(xScale).ticks(data.length);
-    const yAxis = axisRight(yScale);
-    xAxisG.call(xAxis);
-    yAxisG.call(yAxis);
-    //line
-    const myLine = line()
-      .x((d, i) => xScale(i))
-      .y(yScale)
-      .curve(curveCardinal);
+  const [bbEpisodes, setBbEpisodes] = useState([]);
+  const [bbCharacters, setBbCharacters] = useState([]);
+  const [highlight, setHighlight] = useState();
 
-    svg
-      .selectAll(".line")
-      .data([data])
-      .join("path")
-      .attr("class", "line")
-      .attr("d", (d) => {
-        return myLine(d);
+  useEffect(() => {
+    fetch("https://www.breakingbadapi.com/api/characters?category=Breaking+Bad")
+      .then((response) => response.ok && response.json())
+      .then((characters) => {
+        setBbCharacters(
+          characters.sort((a, b) => a.name.localeCompare(b.name))
+        );
       })
-      .attr("fill", "none")
-      .attr("stroke", "blue");
-  }, [data]);
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    fetch("https://www.breakingbadapi.com/api/episodes?series=Breaking+Bad")
+      .then((response) => response.ok && response.json())
+      .then((episodes) => {
+        setBbEpisodes(episodes);
+      })
+      .catch(console.error);
+  }, []);
 
   return (
-    <div>
-      <svg ref={svgRef}></svg>
-    </div>
+    <React.Fragment>
+      <h1>Breaking Bad Timeline</h1>
+      <BBTimeline highlight={highlight} data={bbEpisodes} />
+
+      <h2>Select your character</h2>
+      <select value={highlight} onChange={(e) => setHighlight(e.target.value)}>
+        <option>Select character</option>
+        {bbCharacters.map((character) => (
+          <option key={character.name}>{character.name}</option>
+        ))}
+      </select>
+    </React.Fragment>
   );
 }
 
