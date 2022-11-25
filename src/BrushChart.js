@@ -16,7 +16,7 @@ import usePrevious from "./usePrevious";
  * Component that renders a BrushChart
  */
 
-function BrushChart({ data }) {
+function BrushChart({ data, children }) {
   const svgRef = useRef();
   const wrapperRef = useRef();
   const dimensions = useResizeObserver(wrapperRef);
@@ -101,15 +101,7 @@ function BrushChart({ data }) {
           <g className="brush" />
         </svg>
       </div>
-      <small style={{ marginBottom: "1rem" }}>
-        Selected values: [
-        {data
-          .filter(
-            (value, index) => index >= selection[0] && index <= selection[1]
-          )
-          .join(", ")}
-        ]
-      </small>
+      {children}
     </React.Fragment>
   );
 }

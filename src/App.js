@@ -4,7 +4,9 @@ import "./App.css";
 import BrushChart from "./BrushChart";
 
 function App() {
-  const [data, setData] = useState([10, 25, 30, 40, 25, 60]);
+  const [data, setData] = useState(
+    Array.from({ length: 30 }).map(() => Math.round(Math.random() * 100))
+  );
   const onAddDataClick = () =>
     setData([...data, Math.round(Math.random() * 100)]);
 
@@ -14,8 +16,6 @@ function App() {
 
       <BrushChart data={data} />
       <button onClick={onAddDataClick}>Add data</button>
-
-      {/* <Video /> */}
     </React.Fragment>
   );
 }
