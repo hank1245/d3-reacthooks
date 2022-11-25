@@ -83,8 +83,13 @@ function BrushChart({ data }) {
         [0, 0],
         [width, height],
       ])
-      .on("start brush end", () => {});
-    svg.select(".brush").call(brush).call(brush.move, [0, 200]);
+      .on("start brush end", (event) => {
+        if (event.selection) {
+          const indexSelection = event.selection.map(xScale.invert);
+          setSelection(indexSelection);
+        }
+      });
+    svg.select(".brush").call(brush).call(brush.move, selection.map(xScale));
   }, [data, dimensions, previousSelection, selection]);
 
   return (
